@@ -6,6 +6,8 @@ import socket
 import requests
 import json
 import argparse
+import uuid
+import time
 
 parser = argparse.ArgumentParser()
 parser.add_argument("measurement", help="= cpu, memory or disk")
@@ -14,14 +16,11 @@ data = {}
 
 #########GET MAC and IP#############
 mac_addresses = []
-nics = psutil.net_if_addrs()
-nics.pop('lo')
-for i in nics:
-    for j in nics[i]:
-        if j.family == 17:
-            mac_addresses.append(j.address)
 
-mac_address = mac_addresses[0]
+mac_num = hex(uuid.getnode()).replace('0x', '')
+mac = '-'.join(mac_num[i: i + 2] for i in range(0, 11, 2))
+
+mac_address = mac
 myip = requests.get('http://ip.42.pl/raw').text
 
 ##########GET CPU (%)###############
@@ -63,6 +62,7 @@ def getMemory():
 #########GET DATA################
 data['MAC'] = mac_address
 data['IP'] = myip
+data['TIMESTAMP'] = str(int(time.time()))
 
 if args.measurement == 'cpu':
     data['CPU'] = getCPU()
@@ -82,8 +82,8 @@ json_data = json.dumps(data)
 url = 'http://127.0.0.1:54321/measurement'
 payload = json_data
 headers = {'content-type': 'application/json'}
-
-response = requests.post(url, data=json.dumps(payload), headers=headers)
+print(json_data)
+#response = requests.post(url, data=json.dumps(payload), headers=headers)
 
 
 
