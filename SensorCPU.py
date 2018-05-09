@@ -11,9 +11,14 @@ import time
 
 parser = argparse.ArgumentParser()
 parser.add_argument("monitor", help="= Monitor address")
-parser.add_argument("period", help="= messurement period (s)")
+parser.add_argument("period", help="= Messurement period (s)")
+parser.add_argument("name", help="= Host name")
+parser.add_argument("cpu", help="= CPU name")
+parser.add_argument("memory", help="= Memory size")
 args = parser.parse_args()
 data = {}
+hostID = 0
+metricID = 1
 
 #########GET MAC and IP#############
 mac_addresses = []
@@ -37,28 +42,72 @@ def getCPU():
     all_cpus_usage = "%.2f" % (all_cpus_usage)
     return all_cpus_usage
 
-#########GET DATA################
-def prepareData():
-	data['MAC'] = mac_address
-	data['IP'] = myip
+#########PREPARE SENSOR DATA################
+def prepareSensorData():
+	data['mac'] = mac_address
+	data['ip'] = myip
 	data['timestamp'] = time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime())
 	data['value'] = getCPU()
 
+#########PREPARE SENSOR REGISTER DATA################
+def prepareRegisterData():
+	data['mac'] = mac_address
+	data['ip'] = myip
+	data['name'] = args.name
+	data['cpu'] = args.cpu
+	data['memory'] = args.memory
+
+#########PREPARE MEASUREMENT REGISTER DATA################
+def prepareMeasurementData():
+	data['metric_id'] = metricID
+	data['type'] = 'mean'
+	data['period_seconds'] = args.period
+
+#########REGISTER SENSOR#########
+def registerSensor():
+	prepareRegisterData()
+	sendJsonRegister(str(args.monitor + "/hosts/"))
+
+#########REGISTER MEASUREMENT#########
+def registerMeasurement():
+	prepareMeasurementData()
+	sendJson(str(args.monitor + "/hosts/" + str(hostID) + "/metrics/"))
+
 #########SEND JSON###############
-def sendJson():
+def sendJsonRegister(address):
+	print(address)
 	json_data = json.dumps(data)
 	json_data = json.loads(json_data)
-	url = str(args.monitor)
+	url = address
 	payload = json_data
 	headers = {'Content-type': 'application/json'}
 	print(json_data)
 	response = requests.post(url, data=json.dumps(payload), headers=headers)
-	print(response.text)
+	json_data_response = json.loads(response.text)
+	print(json_data_response['id'])
+	global hostID
+	hostID = json_data_response['id']
 
+#########SEND JSON###############
+def sendJson(address):
+	print(address)
+	json_data = json.dumps(data)
+	json_data = json.loads(json_data)
+	url = address
+	payload = json_data
+	headers = {'Content-type': 'application/json'}
+	print(json_data)
+	response = requests.post(url, data=json.dumps(payload), headers=headers)
+	json_data_response = json.loads(response.text)
+
+registerSensor()
+data={}
+registerMeasurement()
+data={}
 ##########MAIN LOOP##############
 while True:
-	prepareData()
-	sendJson()
+	prepareSensorData()
+	sendJson(str(args.monitor + "/hosts/" + str(hostID) + "/metrics/" + str(metricID) + "/measurements/"))
 	time.sleep(int(args.period))
 
 
