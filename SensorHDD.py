@@ -26,6 +26,7 @@ metricID = 0
 mac_addresses = []
 
 mac_num = hex(uuid.getnode()).replace('0x', '')
+mac_num = mac_num.zfill(12)
 mac = '-'.join(mac_num[i: i + 2] for i in range(0, 11, 2))
 
 mac_address = mac
@@ -61,10 +62,11 @@ def prepareRegisterData():
 	data['mac'] = mac_address
 	data['ip'] = myip
 	data['name'] = args.name
-	data['cpu'] = str(platform.processor())
+	data['cpu'] = str(platform.processor()[:30])
 	ram = psutil.virtual_memory()
 	total_ram = "%.2f" % (ram.total / pow(1024,2))
 	data['memory'] = total_ram
+	data['platform'] = str(platform.system() + " " + platform.release())
 
 #########PREPARE MEASUREMENT REGISTER DATA################
 def prepareMeasurementData():
