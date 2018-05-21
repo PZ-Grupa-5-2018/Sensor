@@ -14,7 +14,6 @@ import threading
 parser = argparse.ArgumentParser()
 parser.add_argument("monitor", help="= Monitor address")
 parser.add_argument("period", help="= Messurement period (s)")
-parser.add_argument("name", help="= Host name")
 parser.add_argument("metricsName", help="= Metrics name")
 args = parser.parse_args()
 data = {}
@@ -57,7 +56,7 @@ def prepareRegisterData():
 	platform.processor()
 	data['mac'] = mac_address
 	data['ip'] = myip
-	data['name'] = args.name
+	data['name'] = str(platform.node())
 	data['cpu'] = str(platform.processor()[:30])
 	ram = psutil.virtual_memory()
 	total_ram = "%.2f" % (ram.total / pow(1024,2))
