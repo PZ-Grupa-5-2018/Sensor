@@ -52,8 +52,8 @@ def getMemory():
 def prepareSensorData():
 	data['MAC'] = mac_address
 	data['IP'] = myip
-	data['timestamp'] = time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime())
 	data['value'] = getMemory()
+	data['timestamp'] = time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime())
 
 #########PREPARE SENSOR REGISTER DATA################
 def prepareRegisterData():
@@ -132,10 +132,17 @@ registerSensor()
 data={}
 registerMeasurement()
 data={}
-##########MAIN LOOP##############
-while True:
+
+##########THREAD FUNCTION########
+def getAndSend():
 	prepareSensorData()
 	sendJson(str(args.monitor + "/hosts/" + str(hostID) + "/metrics/" + str(metricID) + "/measurements/"))
+
+
+##########MAIN LOOP##############
+while True:
+	th = threading.Thread(target=getAndSend, args=[])
+	th.start()
 	time.sleep(int(args.period))
 
 
