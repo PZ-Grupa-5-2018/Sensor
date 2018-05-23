@@ -15,6 +15,7 @@ parser = argparse.ArgumentParser()
 parser.add_argument("monitor", help="= Monitor address")
 parser.add_argument("period", help="= Messurement period (s)")
 parser.add_argument("metricsName", help="= Metrics name")
+parser.add_argument("--autoOffPeriod", help="= Auto off period (s)")
 args = parser.parse_args()
 data = {}
 hostID = 0
@@ -140,10 +141,17 @@ def getAndSend():
 
 
 ##########MAIN LOOP##############
-while True:
-	th = threading.Thread(target=getAndSend, args=[])
-	th.start()
-	time.sleep(int(args.period))
+if not args.autoOffPeriod:
+    while True:
+	    th = threading.Thread(target=getAndSend, args=[])
+	    th.start()
+	    time.sleep(int(args.period))
+else:
+    loops = int(args.autoOffPeriod) // int(args.period)
+    for i in range(loops):
+        th = threading.Thread(target=getAndSend, args=[])
+        th.start()
+        time.sleep(int(args.period))
 
 
 
