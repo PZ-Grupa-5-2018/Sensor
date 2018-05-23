@@ -57,7 +57,7 @@ def prepareRegisterData():
 	data['mac'] = mac_address
 	data['ip'] = myip
 	data['name'] = str(platform.node())
-	data['cpu'] = str(platform.processor()[:30])
+	data['cpu'] = str(platform.processor())
 	ram = psutil.virtual_memory()
 	total_ram = "%.2f" % (ram.total / pow(1024,2))
 	data['memory'] = total_ram
