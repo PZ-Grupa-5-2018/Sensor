@@ -40,7 +40,7 @@ def getCPU():
     for percent in cpus_percent:
         all_cpus_usage += float(percent)
 
-    all_cpus_usage = (cpus_count * 100) / all_cpus_usage
+    all_cpus_usage = all_cpus_usage / cpus_count
     all_cpus_usage = "%.2f" % (all_cpus_usage)
     return all_cpus_usage
 
