@@ -14,13 +14,13 @@ import threading
 parser = argparse.ArgumentParser()
 parser.add_argument("monitor", help="= Monitor address")
 parser.add_argument("period", help="= Messurement period (s)")
-parser.add_argument("metricsName", help="= Metrics name")
 parser.add_argument("--autoOffPeriod", help="= Auto off period (s)")
 args = parser.parse_args()
 data = {}
 hostID = 0
 metricType = 1
 metricID = 0
+metricsName = 'CPU'
 
 #########GET MAC and IP#############
 mac_addresses = []
@@ -67,7 +67,7 @@ def prepareRegisterData():
 #########PREPARE MEASUREMENT REGISTER DATA################
 def prepareMeasurementData():
 	data['metric_id'] = str(metricType)
-	data['type'] = str(args.metricsName)
+	data['type'] = metricsName
 	data['period_seconds'] = args.period
 
 #########REGISTER SENSOR#########
